@@ -68,6 +68,11 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
         }
 
         /// <summary>
+        /// Gets the owner document of the form.
+        /// </summary>
+        public HtmlDocument Document { get; internal set; }
+
+        /// <summary>
         /// Gets the <see cref="T:HtmlNode"/> with the specified name.
         /// </summary>
         /// <value>The HtmlNode with the specified name.</value>

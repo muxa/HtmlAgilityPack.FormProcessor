@@ -212,6 +212,7 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
                 if (formNodes != null)
                 {
                     form = new Form(formNode, formNodes);
+                    form.Document = doc;
                 }
             }
             return form; // could be null!
