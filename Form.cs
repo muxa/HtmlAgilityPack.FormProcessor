@@ -42,6 +42,10 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
             {
                 return this._form.GetAttributeValue("action", "");
             }
+            set
+            {
+                this._form.SetAttributeValue("action", value);
+            }
         }
 
         private HtmlNodeCollection _elements;
