@@ -119,7 +119,9 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
             set { _web = value; }
         }
 
-        private string  _nodeSelectPath = "//input | //select | //textarea | //button";
+        public const string  DefaultNodeSelectPath = "//input | //select | //textarea | //button";
+
+        private string _nodeSelectPath = DefaultNodeSelectPath;
 
         /// <summary>
         /// The XPath used to select the FORM elements. Defaults to input, select, textarea,
@@ -181,6 +183,23 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
         public Form GetForm(HtmlDocument doc, string url, string xpath, // # FIX THIS FUNCTION
             FormQueryModeEnum queryMode)
         {
+            return GetForm(doc, url, xpath, queryMode, NodeSelectPath);
+        }
+
+        /// <summary>
+        /// Attempts to extract, parse, and return an HTMLFormElement object
+        /// from the content contained in the doc object, using the specified
+        /// XPath statement and queryMode.
+        /// </summary>
+        /// <param name="doc">The doc.</param>
+        /// <param name="url">The URL.</param>
+        /// <param name="xpath">The xpath.</param>
+        /// <param name="queryMode">The query mode.</param>
+        /// <param name="nodeSelectPath">The XPath used to select the FORM elements. Defaults to input, select, textarea, and button.</param>
+        /// <returns></returns>
+        public static Form GetForm(HtmlDocument doc, string url, string xpath, // # FIX THIS FUNCTION
+            FormQueryModeEnum queryMode, string nodeSelectPath)
+        {
             HtmlNode formNode
                 = doc.DocumentNode.SelectSingleNode(xpath);
             if (formNode == null)
@@ -193,19 +212,19 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
             AbsolutizeForm(formNode, url);
 
             if (formNode != null) // TODO : fix this
-            {                
+            {
                 // If queryMode is nested then just apply the path from
                 // the point of the containing element         
                 if (queryMode == FormQueryModeEnum.Nested)
                 {
-                    formNodes = formNode.SelectNodes(NodeSelectPath);                    
+                    formNodes = formNode.SelectNodes(nodeSelectPath);
                 }
                 else if (queryMode == FormQueryModeEnum.Adjacent)
                 {
                     // Otherwise, the form is not properly the parent of 
                     // all its nodes, so grab all child nodes of the entire document
                     // *TODO* make this take into account the node position
-                    formNodes = doc.DocumentNode.SelectNodes(NodeSelectPath);
+                    formNodes = doc.DocumentNode.SelectNodes(nodeSelectPath);
                     // Add these nodes to the form element                    
                 }
 
