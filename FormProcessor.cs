@@ -296,7 +296,7 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
         /// <returns></returns>
         private bool preRequestHandler(System.Net.HttpWebRequest target)
         {
-            string payload = AssemblePostBackPayload();
+            string payload = AssemblePostBackPayload(_formNodes);
             byte[] buff = Encoding.ASCII.GetBytes(payload.ToCharArray());
             target.ContentLength = buff.Length;
             target.ContentType = "application/x-www-form-urlencoded";
@@ -306,17 +306,28 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
         }
 
         /// <summary>
-        /// Loops through the current form elements collection and assembles
+        /// Loops through the form elements collection and assembles
         /// a payload string to be used during postback to the server.
         /// </summary>
         /// <returns>string that represents the payload to send back to the
         /// server.</returns>        
-        public string AssemblePostBackPayload()
+        public static string AssemblePostBackPayload(Form form)
+        {
+            return AssemblePostBackPayload(form.elements);
+        }
+
+        /// <summary>
+        /// Loops through the form elements collection and assembles
+        /// a payload string to be used during postback to the server.
+        /// </summary>
+        /// <returns>string that represents the payload to send back to the
+        /// server.</returns>        
+        private static string AssemblePostBackPayload(HtmlNodeCollection formNodes)
         {
             // To use as a buffer
             StringBuilder sb = new StringBuilder();
             // Loop through the nodes and assemble the string
-            foreach (HtmlNode nodeIter in _formNodes)
+            foreach (HtmlNode nodeIter in formNodes)
             {
                 HtmlNode node = nodeIter;
 
@@ -368,7 +379,7 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
 
             if (sb.Length > 1)
                 sb.Remove(0, 1);
-            
+
             return sb.ToString();
         }
     }
