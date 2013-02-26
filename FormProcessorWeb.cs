@@ -117,7 +117,7 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
                 if (currentVal == false && value == true)
                 {
                     // Instantiate the container if it's null
-                    if (this._cookieContainer == null)
+                    if (this.CookieContainer == null)
                         this.ResetCookies();
 
                     this.PreRequest += preRequestAssignCookies;
@@ -132,6 +132,15 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
         }
 
         /// <summary>
+        /// Contains the cookies to enable persistence across calls
+        /// </summary>
+        public CookieContainer CookieContainer
+        {
+            get { return _cookieContainer; }
+            set { _cookieContainer = value; }
+        }
+
+        /// <summary>
         /// Assigns the private _cookieContainer to the outbound request,
         /// assuring that the same collection is passed across calls.
         /// </summary>
@@ -139,16 +148,32 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
         /// <returns></returns>
         private bool preRequestAssignCookies(System.Net.HttpWebRequest target)
         {
-            target.CookieContainer = this._cookieContainer;
+            target.CookieContainer = this.CookieContainer;
             return true;
         }
+
+        /// <summary>
+        /// Sets request timeout to <see cref="Timeout"/>
+        /// </summary>
+        /// <param name="target">The target.</param>
+        /// <returns></returns>
+        private bool preRequestSetTimeout(System.Net.HttpWebRequest target)
+        {
+            target.Timeout = Timeout;
+            return true;
+        }
+
+        /// <summary>
+        /// Gets or sets the length of time, in milliseconds, before the request times out. Default 100 seconds
+        /// </summary>
+        public int Timeout { get; set; }
 
         /// <summary>
         /// Clears the current cookie collection
         /// </summary>
         public void ResetCookies()
         {
-            this._cookieContainer = new System.Net.CookieContainer();
+            this.CookieContainer = new System.Net.CookieContainer();
         }
 
         /// <summary>
@@ -176,7 +201,11 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
         private void Init()
         {
             this.PreHandleDocument += 
-                new PreHandleDocumentHandler(OnPreHandleDocument); 
+                new PreHandleDocumentHandler(OnPreHandleDocument);
+
+            this.PreRequest += preRequestSetTimeout;
+
+            Timeout = 100*1000;
         }
 
         /* TODO: revise how this is done so the processor is not dependent upon HtmlDOMElementFactory
