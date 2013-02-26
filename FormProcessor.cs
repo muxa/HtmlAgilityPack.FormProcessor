@@ -317,63 +317,59 @@ namespace HtmlAgilityPack.AddOns.FormProcessor
             StringBuilder sb = new StringBuilder();
             // Loop through the nodes and assemble the string
             foreach (HtmlNode nodeIter in _formNodes)
-            {                
+            {
                 HtmlNode node = nodeIter;
 
                 if (node.Attributes["name"] != null)
                 {
+                    string nodeName = node.Attributes["name"].Value;
                     if (node.Name == "input")
                     {
-                        if (node.Attributes["type"] != null
-                            &&
-                            (
-                                node.Attributes["type"].Value == "checkbox" 
-                                ||
-                                node.Attributes["type"].Value == "radio"
-                            )
-                            && 
-                            node.Attributes["checked"] != null)
+                        string type = node.GetAttributeValue("type", string.Empty);
+                        if ((type == "checkbox" || type == "radio"))
                         {
-                            sb.Append("&" + node.Attributes["name"].Value +
-                            "=" + HttpUtility.UrlEncode(node.Attributes["value"].Value));
+                            if (node.Attributes["checked"] != null)
+                            {
+                                sb.Append("&").Append(nodeName).Append("=").Append(
+                                    HttpUtility.UrlEncode(node.Attributes["value"].Value));
+                            }
                         }
                         else
                         {
                             if (node.Attributes["name"] != null)
                             {
-                                sb.Append("&" + node.Attributes["name"].Value);
+                                sb.Append("&").Append(nodeName).Append("=");
 
                                 if (node.Attributes["value"] != null)
                                 {
-                                    sb.Append("=" + HttpUtility.UrlEncode(node.Attributes["value"].Value));
+                                    sb.Append(HttpUtility.UrlEncode(node.Attributes["value"].Value));
                                 }
                             }
                         }
                     }
                     else if (node.Name == "textarea")
                     {
-                        sb.Append("&" + node.Attributes["name"].Value +
-                            "=" + HttpUtility.UrlEncode(node.InnerHtml));
+                        sb.Append("&").Append(nodeName).Append("=").Append(HttpUtility.UrlEncode(node.InnerHtml));
                     }
                     else if (node.Name == "select")
                     {
-                        HtmlNodeCollection options = node.SelectNodes("//option[@selected]");
+                        HtmlNodeCollection options = node.SelectNodes("option[@selected]");
                         if (options != null)
                         {
                             foreach (HtmlNode option in options)
                             {
-                                sb.Append("&" + node.Attributes["name"].Value +
-                                    "=" + HttpUtility.UrlEncode(option.Attributes["value"].Value));
+                                sb.Append("&").Append(nodeName).Append("=").Append(
+                                    HttpUtility.UrlEncode(option.Attributes["value"].Value));
                             }
                         }
                     }
                 }
             }
-            string strBuff = sb.ToString();
-            if (strBuff.Length > 1)
-                return strBuff.Substring(1);
-            else
-                return "";
+
+            if (sb.Length > 1)
+                sb.Remove(0, 1);
+            
+            return sb.ToString();
         }
     }
 }
